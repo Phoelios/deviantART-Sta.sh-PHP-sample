@@ -8,7 +8,7 @@ const CLIENT_SECRET = '0123456789abcdefghigklmnopqrstuv'; // OAuth 2.0 client_se
 const REDIRECT_URI = 'http://path.to/this/file';
 const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/authorize';
 const TOKEN_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/token';
-const SUBMIT_API = "http://www.deviantart.com/api/draft15/submit";
+const SUBMIT_API = "http://www.deviantart.com/api/draft15/stash/submit";
 const APPNAME = 'App.Name';
 
 try {
