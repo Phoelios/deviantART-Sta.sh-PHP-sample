@@ -9,9 +9,9 @@ const REDIRECT_URI = 'http://path.to/this/file';
 const NEW_FOLDER_NAME = 'New Folder Name';
 const FOLDERID = '601234'; // use the folderid returned in the result of a submission
 
-const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.lan/oauth2/draft15/authorize';
-const TOKEN_ENDPOINT = 'https://www.deviantart.lan/oauth2/draft15/token';
-const FOLDER_API = "https://www.deviantart.lan/api/draft15/stash/folder";
+const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/authorize';
+const TOKEN_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/token';
+const FOLDER_API = "https://www.deviantart.com/api/draft15/stash/folder";
 
 try {
   $client = new OAuth2\Client(CLIENT_ID, CLIENT_SECRET, OAuth2\Client::AUTH_TYPE_AUTHORIZATION_BASIC);

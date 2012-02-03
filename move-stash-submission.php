@@ -9,9 +9,9 @@ const REDIRECT_URI = 'http://path.to/this/file';
 const STASHID = '123465677'; // teh stashid parameter returned in the result of a submission
 const NEW_FOLDER_NAME = 'Some other folder';
 
-const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.lan/oauth2/draft15/authorize';
-const TOKEN_ENDPOINT = 'https://www.deviantart.lan/oauth2/draft15/token';
-const SUBMIT_API = "https://www.deviantart.lan/api/draft15/stash/move";
+const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/authorize';
+const TOKEN_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/token';
+const SUBMIT_API = "https://www.deviantart.com/api/draft15/stash/move";
 
 try {
   $client = new OAuth2\Client(CLIENT_ID, CLIENT_SECRET, OAuth2\Client::AUTH_TYPE_AUTHORIZATION_BASIC);
@@ -53,7 +53,7 @@ try {
      }
 
      if ($result->status == 'success') {
-       print "Great Success! <a href=\"http://sta.nk/1{$result->stashid}\" target=\"_blank\">Stash ID {$result->stashid}</a>";
+       print "Great Success! <a href=\"http://sta.sh/1{$result->stashid}\" target=\"_blank\">Stash ID {$result->stashid}</a>";
      } else {
        throw new Exception($result->human_error);
      }
