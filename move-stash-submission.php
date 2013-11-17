@@ -10,9 +10,6 @@ const CLIENT_ID = '0'; // OAuth 2.0 client_id
 const CLIENT_SECRET = ''; // OAuth 2.0 client_secret
 const REDIRECT_URI = 'http://url/to/this/file'; // Change this!
 
-const NEW_FOLDER_NAME = 'New Folder Name';
-const FOLDERID = '1141889499295037'; // use the folderid returned in the result of a submission
-
 const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.com/oauth2/authorize';
 const TOKEN_ENDPOINT = 'https://www.deviantart.com/oauth2/token';
 const SUBMIT_API = "https://www.deviantart.com/api/oauth2/stash/submit";
@@ -32,7 +29,6 @@ echo '<a href="' . REDIRECT_URI . '">Reload</a><br>';
 try {
     $client = new OAuth2\Client(CLIENT_ID, CLIENT_SECRET, OAuth2\Client::AUTH_TYPE_AUTHORIZATION_BASIC);
     if (!isset($_REQUEST['code'])) {
-        $params = array('redirect_uri' => REDIRECT_URI);
         $auth_url = $client->getAuthenticationUrl(AUTHORIZATION_ENDPOINT, REDIRECT_URI);
         header('Location: ' . $auth_url);
         die('Redirecting ...');
