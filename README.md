@@ -5,6 +5,8 @@ This is a sample PHP script demonstrating OAuth 2 access to deviantART http://ww
 
 The project uses this PHP OAuth 2 library: https://github.com/adoy/PHP-OAuth2/
 
+The samples dependencies can be installed via composer (http://getcomposer.org), first install composer and then run "composer install" (without quotes) inside this directory.
+
 BSD License
 ===========
 

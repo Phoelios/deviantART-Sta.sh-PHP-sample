@@ -1,64 +1,100 @@
 <?php
-//Relies on the oAuth2 library by Pierrick Charron: https://github.com/adoy/PHP-OAuth2/
-require('./lib/oauth2.php');
+// Load composer autoloader
+require 'vendor/autoload.php';
+
+if (version_compare(PHP_VERSION, '5.3.0', '<')) {
+    trigger_error("This example only supports PHP Version 5.3.0 or higher. You are using " . phpversion());
+}
 
 const CLIENT_ID = '0'; // OAuth 2.0 client_id
-const CLIENT_SECRET = '0123456789abcdefghigklmnopqrstuv'; // OAuth 2.0 client_secret
+const CLIENT_SECRET = ''; // OAuth 2.0 client_secret
+const REDIRECT_URI = 'http://url/to/this/file'; // Change this!
 
-const REDIRECT_URI = 'http://path.to/this/file';
-const STASHID = '123465677'; // teh stashid parameter returned in the result of a submission
-const NEW_FOLDER_NAME = 'Some other folder';
+const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.com/oauth2/authorize';
+const TOKEN_ENDPOINT = 'https://www.deviantart.com/oauth2/token';
+const SUBMIT_API = "https://www.deviantart.com/api/oauth2/stash/submit";
+const MOVE_API = "https://www.deviantart.com/api/oauth2/stash/move/file";
+const APPNAME = 'App.Name';
 
-const AUTHORIZATION_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/authorize';
-const TOKEN_ENDPOINT = 'https://www.deviantart.com/oauth2/draft15/token';
-const SUBMIT_API = "https://www.deviantart.com/api/draft15/stash/move";
+echo '<a href="' . REDIRECT_URI . '">Reload</a><br>';
 
+/**
+ * Oauth2 Process
+ *
+ * 1. Ask user to authorize by redirecting them to the authorization endpoint on DA
+ * 2. Once user authorizes DA will send back an authoirzation code ($_GET['code'])
+ * 3. We then use the code to get an access_token
+ * 4. We use the access_token to access an API endpoint
+ */
 try {
-  $client = new OAuth2\Client(CLIENT_ID, CLIENT_SECRET, OAuth2\Client::AUTH_TYPE_AUTHORIZATION_BASIC);
-   if (!isset($_REQUEST['code'])) {
-     $params = array('redirect_uri' => REDIRECT_URI);
-     $auth_url = $client->getAuthenticationUrl(AUTHORIZATION_ENDPOINT, REDIRECT_URI);
-     header('Location: ' . $auth_url);
-     die('Redirecting ...');
-   } else {
-     $params = array('code' => $_REQUEST['code'], 'redirect_uri' => REDIRECT_URI);
-     $response = $client->getAccessToken(TOKEN_ENDPOINT, OAuth2\Client::GRANT_TYPE_AUTH_CODE, $params);
-     $val = json_decode($response['result']);
+    $client = new OAuth2\Client(CLIENT_ID, CLIENT_SECRET, OAuth2\Client::AUTH_TYPE_AUTHORIZATION_BASIC);
+    if (!isset($_REQUEST['code'])) {
+        $auth_url = $client->getAuthenticationUrl(AUTHORIZATION_ENDPOINT, REDIRECT_URI);
+        header('Location: ' . $auth_url);
+        die('Redirecting ...');
+    } else {
+        $params = array('code' => $_REQUEST['code'], 'redirect_uri' => REDIRECT_URI);
+        $response = $client->getAccessToken(TOKEN_ENDPOINT, OAuth2\Client::GRANT_TYPE_AUTH_CODE, $params);
 
-     if (!$val) {
-       throw new Exception('No valid JSON response returned');
-     }
+        $val = (object) $response['result'];
 
-     if (!$val->access_token) {
-       throw new Exception("No access token returned: ".$val->human_error);
-     }
+        if (!$val->access_token) {
+            throw new Exception("No access token returned: " . $val->error_description);
+        }
 
-     $client->setAccessToken($val->access_token);
+        $client->setAccessToken($val->access_token);
 
-     $client->setAccessTokenType(OAuth2\Client::ACCESS_TOKEN_OAUTH);
+        $client->setAccessTokenType(OAuth2\Client::ACCESS_TOKEN_OAUTH);
 
-     $response = $client->fetch(
-         SUBMIT_API,
-         array(
-         'stashid' => STASHID,
-         'folder' => NEW_FOLDER_NAME,
-       ),
-       OAuth2\Client::HTTP_METHOD_POST
-     );
+        // Submit a file first
+        $response = $client->fetch(
+            SUBMIT_API,
+            array(
+                'title' => 'Fella Sample Image',
+                'artist_comments' => 'Fella Sample Image',
+                'keywords' => 'fella sample image',
+                'folder' => APPNAME,
+                'file' => "@fella.png"
+            ),
+            OAuth2\Client::HTTP_METHOD_POST
+        );
 
-     $result = json_decode($response['result']);
+        $result = (object) $response['result'];
 
-     if (!$result) {
-       throw new Exception('No valid JSON response returned');
-     }
+        if (!$result) {
+            throw new Exception('No valid JSON response returned');
+        }
 
-     if ($result->status == 'success') {
-       print "Great Success! <a href=\"http://sta.sh/1{$result->stashid}\" target=\"_blank\">Stash ID {$result->stashid}</a>";
-     } else {
-       throw new Exception($result->human_error);
-     }
-   }
+        if ($result->status != 'success') {
+            throw new Exception($result->error_description);
+        }
+
+        $target_folderid = $result->folderid;
+        $move_folder = 'My folder ' . uniqid();
+
+        // Move submission in new folder
+        $response = $client->fetch(
+            MOVE_API,
+            array(
+                'stashid' => $result->stashid,
+                'folder' => $move_folder,
+            ),
+            OAuth2\Client::HTTP_METHOD_POST
+        );
+
+        $result = (object) $response['result'];
+
+        if (!$result) {
+            throw new Exception('No valid JSON response returned');
+        }
+
+        if ($result->status == 'success') {
+            echo "Great Success! Moved into '".$move_folder."'.";
+        } else {
+            throw new Exception($result->error_description);
+        }
+    }
 } catch (Exception $e) {
-   print "Fatal Error: ".$e->getMessage();
+    echo "Fatal Error: ".$e->getMessage();
 }
 ?>
